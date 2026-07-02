@@ -1,0 +1,5 @@
+# Запрещаем доступ к .env файлам
+<FilesMatch "\.(env|env\.example|ini|log|sh|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
