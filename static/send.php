@@ -2,14 +2,26 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-// Загружаем переменные из .env (если нет dotenv, используем getenv)
-$appPassword = getenv('GMAIL_APP_PASSWORD');
-if (!$appPassword && file_exists(__DIR__ . '/.env')) {
-    $env = parse_ini_file(__DIR__ . '/.env');
-    $appPassword = $env['GMAIL_APP_PASSWORD'] ?? '';
+// Загружаем .env
+$env = [];
+if (file_exists(__DIR__ . '/.env')) {
+    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $env[trim($key)] = trim($value);
+        }
+    }
 }
 
-require 'vendor/autoload.php';
+$appPassword = $env['GMAIL_APP_PASSWORD'] ?? '';
+
+if (empty($appPassword)) {
+    echo json_encode(['success' => false, 'message' => 'Ошибка: не найден пароль почты']);
+    exit;
+}
+
+require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -27,6 +39,7 @@ if (empty($name) || empty($organization) || empty($phone) || empty($email)) {
 $mail = new PHPMailer(true);
 
 try {
+    // Настройки SMTP
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
@@ -35,36 +48,32 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
 
+    // === КОДИРОВКА UTF-8 ===
+    $mail->CharSet = 'UTF-8';
+    $mail->Encoding = 'base64';
+
+    // Отправитель и получатель
     $mail->setFrom('infoktpby@gmail.com', 'ktp.by');
     $mail->addAddress('ktp@ktp.by');
 
+    // === СОДЕРЖАНИЕ ПИСЬМА ===
     $mail->isHTML(false);
-    $mail->Subject = 'Новая заявка с ktp.by - Салазки СНЕМ.26.3.036.001';
+    $mail->Subject = 'Новая заявка с ktp.by';
     
     $message = "Поступила новая заявка с сайта ktp.by\n";
-    $message .= "Товар: Салазки СНЕМ.26.3.036.001\n";
-    $message .= str_repeat('-', 40) . "\n";
+    $message .= str_repeat('=', 40) . "\n";
     $message .= "Имя: $name\n";
     $message .= "Организация: $organization\n";
     $message .= "Телефон: $phone\n";
     $message .= "Email: $email\n";
-    $message .= str_repeat('-', 40) . "\n";
-    $message .= "Дата заявки: " . date('d.m.Y H:i:s');
+    $message .= str_repeat('=', 40) . "\n";
+    $message .= "Дата: " . date('d.m.Y H:i:s');
     
     $mail->Body = $message;
 
     $mail->send();
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Заявка успешно отправлена! Мы свяжемся с вами.'
-    ]);
-    
+    echo json_encode(['success' => true, 'message' => 'Заявка успешно отправлена!']);
 } catch (Exception $e) {
-    error_log('PHPMailer Error: ' . $mail->ErrorInfo);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Ошибка отправки. Попробуйте позже.'
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Ошибка: ' . $mail->ErrorInfo]);
 }
 ?>
