@@ -26,10 +26,12 @@ require __DIR__ . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+// Получаем данные из формы
 $name = $_POST['name'] ?? '';
 $organization = $_POST['organization'] ?? '';
 $phone = $_POST['phone'] ?? '';
 $email = $_POST['email'] ?? '';
+$pageTitle = $_POST['page_title'] ?? ''; // ← НОВОЕ ПОЛЕ
 
 if (empty($name) || empty($organization) || empty($phone) || empty($email)) {
     echo json_encode(['success' => false, 'message' => 'Заполните все поля!']);
@@ -48,7 +50,7 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
 
-    // === КОДИРОВКА UTF-8 ===
+    // Кодировка UTF-8
     $mail->CharSet = 'UTF-8';
     $mail->Encoding = 'base64';
 
@@ -56,12 +58,19 @@ try {
     $mail->setFrom('infoktpby@gmail.com', 'ktp.by');
     $mail->addAddress('ktp@ktp.by');
 
-    // === СОДЕРЖАНИЕ ПИСЬМА ===
+    // Содержание письма
     $mail->isHTML(false);
     $mail->Subject = 'Новая заявка с ktp.by';
     
     $message = "Поступила новая заявка с сайта ktp.by\n";
     $message .= str_repeat('=', 40) . "\n";
+    
+    // Добавляем заголовок страницы, если есть
+    if (!empty($pageTitle)) {
+        $message .= "Страница: $pageTitle\n";
+        $message .= str_repeat('-', 40) . "\n";
+    }
+    
     $message .= "Имя: $name\n";
     $message .= "Организация: $organization\n";
     $message .= "Телефон: $phone\n";
