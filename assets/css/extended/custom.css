@@ -1,3 +1,74 @@
+/* Базовые переменные для светлой темы */
+html {
+    --table-bg: #ffffff;
+    --table-text: #333333;
+    /* Светлый красный для шапки (#ff0011 с осветлением) */
+    --header-bg: hsl(356, 100%, 65%); 
+    --header-text: #ffffff;
+    --row-border: #eeeeee;
+    --zebra-bg: #f9f9f9;
+    --hover-bg: #f1f1f1;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Переменные для темной темы (по вашему образцу) */
+html[data-theme="dark"] {
+    --table-bg: #1e1e1e;       /* Темный фон таблицы */
+    --table-text: #e0e0e0;     /* Светлый текст */
+    --header-bg: hsl(356, 100%, 45%); /* Приглушенный красный для темной темы */
+    --header-text: #ffffff;
+    --row-border: #333333;     /* Контрастные границы строк */
+    --zebra-bg: #252525;       /* Четкое разделение строк-зебр */
+    --hover-bg: #2d2d2d;       /* Подсветка при наведении */
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Стилизация таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--table-bg);
+    color: var(--table-text);
+    margin: 20px 0;
+    font-size: 16px;
+    font-family: sans-serif;
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+thead tr {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    text-align: left;
+}
+
+/* Увеличили левый отступ до 24px, чтобы текст не прилипал к краю */
+th, td {
+    padding: 12px 15px 12px 24px; 
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--row-border);
+}
+
+/* Чередование строк (зебра) */
+tbody tr:nth-child(even) {
+    background-color: var(--zebra-bg);
+}
+
+/* Финальная линия в тон шапки */
+tbody tr:last-of-type {
+    border-bottom: 1px solid var(--header-bg);
+}
+
+/* Эффект наведения */
+tbody tr:hover {
+    background-color: var(--hover-bg);
+    /*cursor: pointer;*/
+}
+
+/* ====================== ЯНДЕКС ИНФОРМЕР ====================== */
+
 .ym-advanced-informer{
     margin: 10px auto;
 }
@@ -85,18 +156,19 @@ html[data-theme="dark"] #lightbox img[src$=".png"] {
 }
 
 /* 2 колонки — планшеты */
-@media (min-width: 768px) and (max-width: 1199px) {
+/*@media (min-width: 768px) and (max-width: 1199px) {*/
+@media (min-width: 768px) {
   .gallery {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* 3 колонки — по умолчанию на компьютерах и выше */
+/* 3 колонки — по умолчанию на компьютерах и выше
 @media (min-width: 1200px) {
   .gallery {
     grid-template-columns: repeat(3, 1fr);
   }
-}
+}*/
 
 .gallery-item {
   background: #f8f9fa;
